@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script>
+
+        var productAPI = 'http://localhost:50360/api/Products/';
+        var cartAPI = 'http://localhost:50360/api/Carts/';
+        var categoryAPI = 'http://localhost:50360/api/Categories';
+
+        $(document).ready(function () {
+
+            $.ajax({
+                url: productAPI,
+                type: 'get',
+                success: function (data) {
+                    console.log(data.length);
+                    for (i = 0; i < data.length; i++) {
+                        $('#productList').append(`<li
+                            class ="list-group-item" data-id = "${data[i].Id}">${data[i].Name} | ${data[i].Price} | ${data[i].Category.Name}
+                            <button type="button" class ="btn btn-default" onclick="editProduct(${data[i].Id});">Edit</button>
+                            <button type="button" class ="btn btn-default" onclick="deleteProduct(${data[i].Id});">Delete</button>
+                            <button type="button" class ="btn btn-default" onclick="addCart(${data[i].Id});">AddCart</button>
+                            </li>`);
+                    }
+                }
+            });
+        });
+
+        $.ajax({
+            url: cartAPI,
+            type: 'get',
+            success: function (data) {
+                console.log(data.length);
+                for (i = 0; i < data.length; i++) {
+                    $('#cartList').append(`<li
+                            class ="list-group-item" data-id = "${data[i].Id}">${data[i].Product.Name} | ${data[i].Product.Price}
+                            <button type="button" class ="btn btn-default" onclick="editCart(${data[i].Id});">Edit</button>
+                            <button type="button" class ="btn btn-default" onclick="deleteCart(${data[i].Id});">Delete</button>
+                       
+                            </li>`);
+                }
+            }
+        });
+       
+
+        function editProduct(Id) {
+            $.ajax({
+                url: productAPI + Id,
+                type: 'get',
+                success: function (data) {
+                    $('#Id').val(data.Id);
+                    $('#Name').val(data.Name);
+                    $('#Price').val(data.Price);
+                    $('#CategoryId').val(data.CategoryId);
+                }
+            });
+        }
+
+        function addCart(Id){
+            $.ajax({
+                url: cartAPI,
+                method: 'post',
+                data: {
+                    ProductId: Id
+                },
+                success: function (data) {
+                    $('#cartList').append(`<li
+                            class ="list-group-item" data-id ="${data.Id}">${data.Product.Name} | ${data.Product.Price}
+                            <button type="button" class ="btn btn-default" onclick="editProduct(${data.Id});">Edit</button>
+                            <button type="button" class ="btn btn-default" onclick="deleteProduct(${data.Id});">Delete</button>
+
+                            </li>`);
+                }
+            })
+        }
+        function Confirmer(Id) {
+            Id = $('#Id').val();
+            if (Id == null) {
+                saveProduct();
+            } else {
+                confirmEdit(Id);
+            }
+        }
+        function confirmEdit(Id) {
+            Id = $('#Id').val();
+            var name = $('#Name').val();
+            var price = $('#Price').val();
+            var categoryId = $('#CategoryId').val();
+            $.ajax({
+                url: productAPI + Id,
+                type: 'put',
+                data: {
+                    Id: Id,
+                    Name: name,
+                    Price: price,
+                    CategoryId: categoryId
+                },
+                success: function (data) {
+                    location.reload();
+                }
+            })
+        }
+        
+        function saveProduct() {
+            var name = $('#Name').val();
+            var price = $('#Price').val();
+            var categoryId = $('#CategoryId').val();
+
+            $.ajax({
+                url: productAPI,
+                method: 'post',
+                data: {
+                    Name: name,
+                    Price: price,
+                    CategoryId: categoryId
+                },
+                success: function (data) {
+                    $('#productList').append(`<li
+                            class ="list-group-item" data-id = "${data.Id}">${data.Name} | ${data.Price} | ${data.Category.Name}
+                            <button type="button" class ="btn btn-default" onclick="editCart(${data.Id});">Edit</button>
+                            <button type="button" class ="btn btn-default" onclick="deleteCart(${data.Id});">Delete</button>
+                            <button type="button" class ="btn btn-default" onclick="addCart(${data.Id});">AddCart</button>
+                            </li>`);
+                    $('.form-control').each(function () {
+                        $(this).val('');
+                    });
+                }
+            })
+        }
+
+        function deleteProduct(Id) {
+            $.ajax({
+                url: productAPI + Id,
+                method: 'delete',
+                success: function (data) {
+                    $(`#productList .list-group-item[data-id = ${data.Id}]`).remove();
+                }
+            })
+        }
+
+        function deleteCart(Id) {
+            $.ajax({
+                url: cartAPI + Id,
+                method: 'delete',
+                success: function (data) {
+                    $(`#cartList .list-group-item[data-id = ${data.Id}]`).remove();
+                }
+            })
+        }
+        function clearProductForm() {
+            $('.form-control').each(function () {
+                $(this).val('');
+            });
+        }
+    </script>
+
+</head>
+<body>
+
+    <div class="container">
+        <div class="row">
+            <h1>Product Management System</h1>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Product List</div>
+                    <div class="panel-body">
+                        <ul class="list-group" id="productList"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Cart List</div>
+                    <div class="panel-body" id="coverCart">
+                        <ul class="list-group" id="cartList"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Product Form</div>
+                    <div class="panel-body">
+                        <form>
+                            <div class="form-group">
+                                <input type="hidden" class="form-control" id="Id">
+                                <label for="Name">Name:</label>
+                                <input type="email" class="form-control" id="Name">
+                                <label for="Price">Price:</label>
+                                <input type="number" class="form-control" id="Price">
+                                <label for="CategoryId">CateId:</label>
+                                <input type="number" class="form-control" id="CategoryId">
+
+
+                            </div>
+
+                            <button type="button" class="btn btn-default" onclick="saveProduct();">Save</button>
+                            <button type="button" class="btn btn-default" onclick="clearStudentForm();">Add new</button>
+                            <button type="button" class="btn btn-default" onclick="confirmEdit(Id);">Edit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+
+        </div>
+        <div class="row">
+
+        </div>
+    </div>
+
+</body>
+</html>
