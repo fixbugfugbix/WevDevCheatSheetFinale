@@ -124,8 +124,8 @@
                 success: function (data) {
                     $('#productList').append(`<li
                             class ="list-group-item" data-id = "${data.Id}">${data.Name} | ${data.Price} | ${data.Category.Name}
-                            <button type="button" class ="btn btn-default" onclick="editCart(${data.Id});">Edit</button>
-                            <button type="button" class ="btn btn-default" onclick="deleteCart(${data.Id});">Delete</button>
+                            <button type="button" class ="btn btn-default" onclick="editProduct(${data.Id});">Edit</button>
+                            <button type="button" class ="btn btn-default" onclick="deleteProduct(${data.Id});">Delete</button>
                             <button type="button" class ="btn btn-default" onclick="addCart(${data.Id});">AddCart</button>
                             </li>`);
                     $('.form-control').each(function () {
