@@ -74,7 +74,7 @@
                     $('#cartList').append(`<li
                             class ="list-group-item" data-id ="${data.Id}">${data.Product.Name} | ${data.Product.Price}
                             <button type="button" class ="btn btn-default" onclick="editProduct(${data.Id});">Edit</button>
-                            <button type="button" class ="btn btn-default" onclick="deleteProduct(${data.Id});">Delete</button>
+                            <button type="button" class ="btn btn-default" onclick="deleteCart(${data.Id});">Delete</button>
 
                             </li>`);
                 }
